@@ -10,10 +10,10 @@ import de.uni_mannheim.informatik.dws.winter.model.FusibleFactory;
 import de.uni_mannheim.informatik.dws.winter.model.RecordGroup;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 
-public class FusibleBookFactory implements FusibleFactory<Book, Attribute> {
+public class FusibleMovieFactory implements FusibleFactory<Movie, Attribute> {
 
 	@Override
-	public Book createInstanceForFusion(RecordGroup<Movie, Attribute> cluster) {
+	public Movie createInstanceForFusion(RecordGroup<Movie, Attribute> cluster) {
 
 		List<String> ids = new LinkedList<>();
 
