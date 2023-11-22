@@ -7,19 +7,9 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
 
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.evaluation.ActorsEvaluationRule;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.evaluation.DateEvaluationRule;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.evaluation.DirectorEvaluationRule;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.evaluation.TitleEvaluationRule;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers.ActorsFuserUnion;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers.DateFuserFavourSource;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers.DateFuserVoting;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers.DirectorFuserLongestString;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers.TitleFuserShortestString;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.FusibleMovieFactory;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.Movie;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.MovieXMLFormatter;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.MovieXMLReader;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.evaluation.*;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers.*;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.*;
 import de.uni_mannheim.informatik.dws.winter.datafusion.CorrespondenceSet;
 import de.uni_mannheim.informatik.dws.winter.datafusion.DataFusionEngine;
 import de.uni_mannheim.informatik.dws.winter.datafusion.DataFusionEvaluator;
@@ -53,23 +43,22 @@ public class DataFusion_Main
     {
 		// Load the Data into FusibleDataSet
 		logger.info("*\tLoading datasets\t*");
-		FusibleDataSet<Movie, Attribute> dataDBPedia = new FusibleHashedDataSet<>();
-		new MovieXMLReader().loadFromXML(new File("data/input/DBPedia_books_schema.xml"), "/books/book", dataDBPedia);
+		FusibleDataSet<Book, Attribute> dataDBPedia = new FusibleHashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/DBPedia_books_schema.xml"), "/books/book", dataDBPedia);
 		dataDBPedia.printDataSetDensityReport();
 
-		FusibleDataSet<Movie, Attribute> dataWikipedia = new FusibleHashedDataSet<>();
-		new MovieXMLReader().loadFromXML(new File("data/input/Wikipedia_books_schema.xml"), "/books/book", dataWikipedia);
+		FusibleDataSet<Book, Attribute> dataWikipedia = new FusibleHashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/Wikipedia_books_schema.xml"), "/books/book", dataWikipedia);
 		dataWikipedia.printDataSetDensityReport();
 
-		FusibleDataSet<Movie, Attribute> dataZenodo = new FusibleHashedDataSet<>();
-		new MovieXMLReader().loadFromXML(new File("data/input/Zenodo_books_schema.xml"), "/books/book", dataZenodo);
+		FusibleDataSet<Book, Attribute> dataZenodo = new FusibleHashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/Zenodo_books_schema.xml"), "/books/book", dataZenodo);
 		dataZenodo.printDataSetDensityReport();
 
 		// Maintain Provenance
-		// Scores (e.g. from rating) TODO: add scores to the datasets
-		dataDBPedia.setScore(0);
-		dataWikipedia.setScore(0);
-		dataZenodo.setScore(0);
+		dataDBPedia.setScore(2.0);
+		dataWikipedia.setScore(1.0);
+		dataZenodo.setScore(3.0);
 
 		// Date (e.g. last update)
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder()
@@ -78,42 +67,52 @@ public class DataFusion_Main
 		        .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
 		        .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
 		        .toFormatter(Locale.ENGLISH);
-		
-		dataDBPedia.setDate(LocalDateTime.parse("2012-01-01", formatter));
-		dataWikipedia.setDate(LocalDateTime.parse("2010-01-01", formatter));
-		dataZenodo.setDate(LocalDateTime.parse("2008-01-01", formatter));
+
+
+		dataDBPedia.setDate(LocalDateTime.parse("2000-01-01", formatter));
+		dataWikipedia.setDate(LocalDateTime.parse("2020-01-01", formatter));
+		dataZenodo.setDate(LocalDateTime.parse("2023-01-01", formatter));
 
 		// load correspondences
 		logger.info("*\tLoading correspondences\t*");
-		CorrespondenceSet<Movie, Attribute> correspondences = new CorrespondenceSet<>();
-		correspondences.loadCorrespondences(new File("data/correspondences/academy_awards_2_actors_correspondences.csv"),dataDBPedia, dataWikipedia);
-		correspondences.loadCorrespondences(new File("data/correspondences/actors_2_golden_globes_correspondences.csv"),dataWikipedia, dataZenodo);
+		CorrespondenceSet<Book, Attribute> correspondences = new CorrespondenceSet<>();
+		correspondences.loadCorrespondences(new File("data/correspondences/DBPedia_Wikipedia_correspondences.csv"),dataDBPedia, dataWikipedia);
+		correspondences.loadCorrespondences(new File("data/correspondences/DBPedia_Zenodo_correspondences.csv"),dataDBPedia, dataZenodo);
+		correspondences.loadCorrespondences(new File("data/correspondences/Zenodo_Wikipedia_correspondences.csv"), dataZenodo,dataWikipedia);
 
 		// write group size distribution
 		correspondences.printGroupSizeDistribution();
 
 		// load the gold standard
 		logger.info("*\tEvaluating results\t*");
-		DataSet<Movie, Attribute> gs = new FusibleHashedDataSet<>();
-		new MovieXMLReader().loadFromXML(new File("data/goldstandard/gold.xml"), "/movies/movie", gs);
+		DataSet<Book, Attribute> gs = new FusibleHashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/goldstandard/gold.xml"), "/books/book", gs);
 
-		for(Movie m : gs.get()) {
+		for(Book m : gs.get()) {
 			logger.info(String.format("gs: %s", m.getIdentifier()));
 		}
 
 		// define the fusion strategy
-		DataFusionStrategy<Movie, Attribute> strategy = new DataFusionStrategy<>(new MovieXMLReader());
+		DataFusionStrategy<Book, Attribute> strategy = new DataFusionStrategy<>(new BookXMLReader());
 		// write debug results to file
 		strategy.activateDebugReport("data/output/debugResultsDatafusion.csv", -1, gs);
 		
 		// add attribute fusers
-		strategy.addAttributeFuser(Movie.TITLE, new TitleFuserShortestString(),new TitleEvaluationRule());
-		strategy.addAttributeFuser(Movie.DIRECTOR,new DirectorFuserLongestString(), new DirectorEvaluationRule());
-		strategy.addAttributeFuser(Movie.DATE, new DateFuserFavourSource(),new DateEvaluationRule());
-		strategy.addAttributeFuser(Movie.ACTORS,new ActorsFuserUnion(),new ActorsEvaluationRule());
-		
+		strategy.addAttributeFuser(Book.TITLE, new TitleFuserShortestString(),new TitleEvaluationRule());
+		strategy.addAttributeFuser(Book.AUTHOR,new AuthorFuserFavourSource(), new AuthorEvaluationRule());
+		strategy.addAttributeFuser(Book.RATING, new RatingFuserAverage(),new RatingEvaluationRule());
+		strategy.addAttributeFuser(Book.DESCRIPTION, new DescriptionFuserLongestString(),new DescriptionEvaluationRule());
+		strategy.addAttributeFuser(Book.LANGUAGE, new LanguageFuserFavourSource(),new LanguageEvaluationRule());
+		strategy.addAttributeFuser(Book.ISBN, new IsbnFuserFavourSource(),new IsbnEvaluationRule());
+		strategy.addAttributeFuser(Book.GENRES, new GenresFuserUnion(),new GenresEvaluationRule());
+		strategy.addAttributeFuser(Book.PAGES, new PagesFuserAverage(),new PagesEvaluationRule());
+		strategy.addAttributeFuser(Book.PUBLISHER, new PublisherFuserFavourSource(),new PublisherEvaluationRule());
+		strategy.addAttributeFuser(Book.PUBLISH_DATE, new DateFuserMostRecent(),new PublishDateEvaluationRule());
+		strategy.addAttributeFuser(Book.NUM_RATINGS, new NumRatingsFuserAverage(),new NumRatingsEvaluationRule());
+		strategy.addAttributeFuser(Book.COVER_IMG, new CoverImageFuserFavourSource(),new CoverImageEvaluationRule());
+
 		// create the fusion engine
-		DataFusionEngine<Movie, Attribute> engine = new DataFusionEngine<>(strategy);
+		DataFusionEngine<Book, Attribute> engine = new DataFusionEngine<>(strategy);
 
 		// print consistency report
 		engine.printClusterConsistencyReport(correspondences, null);
@@ -123,13 +122,13 @@ public class DataFusion_Main
 
 		// run the fusion
 		logger.info("*\tRunning data fusion\t*");
-		FusibleDataSet<Movie, Attribute> fusedDataSet = engine.run(correspondences, null);
+		FusibleDataSet<Book, Attribute> fusedDataSet = engine.run(correspondences,null);
 
 		// write the result
-		new MovieXMLFormatter().writeXML(new File("data/output/fused.xml"), fusedDataSet);
+		new BookXMLFormatter().writeXML(new File("data/output/fused.xml"), fusedDataSet);
 
 		// evaluate
-		DataFusionEvaluator<Movie, Attribute> evaluator = new DataFusionEvaluator<>(strategy, new RecordGroupFactory<Movie, Attribute>());
+		DataFusionEvaluator<Book, Attribute> evaluator = new DataFusionEvaluator<>(strategy, new RecordGroupFactory<Book, Attribute>());
 		
 		double accuracy = evaluator.evaluate(fusedDataSet, gs, null);
 

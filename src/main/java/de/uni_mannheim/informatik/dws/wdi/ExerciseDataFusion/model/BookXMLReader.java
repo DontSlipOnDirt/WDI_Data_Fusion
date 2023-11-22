@@ -37,7 +37,7 @@ public class BookXMLReader extends XMLMatchableReader<Book, Attribute> implement
 
     @Override
     public Book createModelFromElement(Node node, String provenanceInfo) {
-        String id = getValueFromChildElement(node, "id");
+        String id = node.getAttributes().getNamedItem("id").getNodeValue();
 
         // create the object with id and provenance information
         Book book = new Book(id, provenanceInfo);
@@ -45,13 +45,32 @@ public class BookXMLReader extends XMLMatchableReader<Book, Attribute> implement
         // fill the attributes
         book.setTitle(getValueFromChildElement(node, "title"));
         book.setAuthor(getValueFromChildElement(node, "author"));
-        book.setRating(Double.parseDouble(getValueFromChildElement(node, "rating")));
+
+        // convert the rating string into a Double object
+        try {
+            String rt = getValueFromChildElement(node, "rating");
+            if (rt != null && !rt.isEmpty()) {
+                book.setRating(Double.parseDouble(getValueFromChildElement(node, "rating")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         book.setDescription(getValueFromChildElement(node, "description"));
         book.setLanguage(getValueFromChildElement(node, "language"));
         book.setIsbn(getValueFromChildElement(node, "isbn"));
-        // assuming genres are separated by commas
-        book.setGenres(Arrays.asList(getValueFromChildElement(node, "genres").split(",")));
-        book.setPages(Integer.parseInt(getValueFromChildElement(node, "pages")));
+        book.setGenres(getValueFromChildElement(node, "genres"));
+
+        // convert the pages string into a Int object
+        try {
+            String pg = getValueFromChildElement(node, "pages");
+            if (pg != null && !pg.isEmpty()) {
+                book.setPages(Integer.parseInt(getValueFromChildElement(node, "pages")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         book.setPublisher(getValueFromChildElement(node, "publisher"));
 
         // convert the date string into a DateTime object
@@ -72,7 +91,16 @@ public class BookXMLReader extends XMLMatchableReader<Book, Attribute> implement
             e.printStackTrace();
         }
 
-        book.setNumRatings(Double.parseDouble(getValueFromChildElement(node, "numRatings")));
+        // convert the numRating string into a Double object
+        try {
+            String numR = getValueFromChildElement(node, "numRatings");
+            if (numR != null && !numR.isEmpty()) {
+                book.setNumRatings(Double.parseDouble(getValueFromChildElement(node, "numRatings")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         book.setCoverImg(getValueFromChildElement(node, "coverImg"));
 
         return book;

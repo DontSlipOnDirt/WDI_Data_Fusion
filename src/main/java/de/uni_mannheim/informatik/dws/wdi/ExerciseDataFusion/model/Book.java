@@ -26,9 +26,12 @@ public class Book extends AbstractRecord<Attribute> implements Serializable {
     private String coverImg;
 
     public Book(String identifier, String provenance) {
-        super(identifier, provenance);
+        id = identifier;
     }
 
+    public String getIdentifier() {
+        return id;
+    }
     public String getTitle() {
         return title;
     }
@@ -81,8 +84,8 @@ public class Book extends AbstractRecord<Attribute> implements Serializable {
         return genres;
     }
 
-    public void setGenres(List<String> genres) {
-        this.genres = genres;
+    public void setGenres(String genres) {
+        this.genres = Collections.singletonList(genres);
     }
 
     public int getPages() {
@@ -183,7 +186,7 @@ public class Book extends AbstractRecord<Attribute> implements Serializable {
         else if (attribute == ISBN)
             return getIsbn() != null && !getIsbn().isEmpty();
         else if (attribute == GENRES)
-            return getGenres() != null && getGenres().size() > 0;
+            return getGenres() != null && !getGenres().isEmpty();
         else if (attribute == PAGES)
             return getPages() != 0;
         else if (attribute == PUBLISHER)
@@ -223,8 +226,8 @@ public class Book extends AbstractRecord<Attribute> implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Movie) {
-            return this.getIdentifier().equals(((Movie) obj).getIdentifier());
+        if (obj instanceof Book) {
+            return this.getIdentifier().equals(((Book) obj).getIdentifier());
         } else
             return false;
     }
