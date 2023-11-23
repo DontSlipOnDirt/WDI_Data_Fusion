@@ -13,7 +13,7 @@ package de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers;
 
 import java.time.LocalDateTime;
 
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.Movie;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.Book;
 import de.uni_mannheim.informatik.dws.winter.datafusion.AttributeValueFuser;
 import de.uni_mannheim.informatik.dws.winter.datafusion.conflictresolution.meta.FavourSources;
 import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
@@ -24,33 +24,33 @@ import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.processing.Processable;
 
 /**
- * {@link AttributeValueFuser} for the date of {@link Movie}s.
+ * {@link AttributeValueFuser} for the date of {@link Book}s.
  * 
  * @author Robert Meusel (robert@dwslab.de)
  * @author Oliver Lehmberg (oli@dwslab.de)
  * 
  */
-public class DateFuserFavourSource extends AttributeValueFuser<LocalDateTime, Movie, Attribute> {
+public class DateFuserFavourSource extends AttributeValueFuser<LocalDateTime, Book, Attribute> {
 
 	public DateFuserFavourSource() {
-		super(new FavourSources<LocalDateTime, Movie, Attribute>());
+		super(new FavourSources<LocalDateTime, Book, Attribute>());
 	}
 
 	@Override
-	public boolean hasValue(Movie record, Correspondence<Attribute, Matchable> correspondence) {
-		return record.hasValue(Movie.DATE);
+	public boolean hasValue(Book record, Correspondence<Attribute, Matchable> correspondence) {
+		return record.hasValue(Book.PUBLISH_DATE);
 	}
 
 	@Override
-	public LocalDateTime getValue(Movie record, Correspondence<Attribute, Matchable> correspondence) {
-		return record.getDate();
+	public LocalDateTime getValue(Book record, Correspondence<Attribute, Matchable> correspondence) {
+		return record.getPublishDate();
 	}
 
 	@Override
-	public void fuse(RecordGroup<Movie, Attribute> group, Movie fusedRecord, Processable<Correspondence<Attribute, Matchable>> schemaCorrespondences, Attribute schemaElement) {
-		FusedValue<LocalDateTime, Movie, Attribute> fused = getFusedValue(group, schemaCorrespondences, schemaElement);
-		fusedRecord.setDate(fused.getValue());
-		fusedRecord.setAttributeProvenance(Movie.DATE, fused.getOriginalIds());
+	public void fuse(RecordGroup<Book, Attribute> group, Book fusedRecord, Processable<Correspondence<Attribute, Matchable>> schemaCorrespondences, Attribute schemaElement) {
+		FusedValue<LocalDateTime, Book, Attribute> fused = getFusedValue(group, schemaCorrespondences, schemaElement);
+		fusedRecord.setPublishDate(fused.getValue());
+		fusedRecord.setAttributeProvenance(Book.PUBLISH_DATE, fused.getOriginalIds());
 	}
 
 }

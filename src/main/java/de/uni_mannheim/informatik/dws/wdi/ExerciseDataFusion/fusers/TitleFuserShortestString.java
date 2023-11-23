@@ -11,7 +11,7 @@
  */
 package de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.fusers;
 
-import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.Movie;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseDataFusion.model.Book;
 import de.uni_mannheim.informatik.dws.winter.datafusion.AttributeValueFuser;
 import de.uni_mannheim.informatik.dws.winter.datafusion.conflictresolution.string.ShortestString;
 import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
@@ -22,38 +22,38 @@ import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.processing.Processable;
 
 /**
- * {@link AttributeValueFuser} for the titles of {@link Movie}s.
+ * {@link AttributeValueFuser} for the titles of {@link Book}s.
  * 
  * @author Oliver Lehmberg (oli@dwslab.de)
  * 
  */
 public class TitleFuserShortestString extends
-		AttributeValueFuser<String, Movie, Attribute> {
+		AttributeValueFuser<String, Book, Attribute> {
 
 	public TitleFuserShortestString() {
-		super(new ShortestString<Movie, Attribute>());
+		super(new ShortestString<Book, Attribute>());
 	}
 
 	@Override
-	public void fuse(RecordGroup<Movie, Attribute> group, Movie fusedRecord, Processable<Correspondence<Attribute, Matchable>> schemaCorrespondences, Attribute schemaElement) {
+	public void fuse(RecordGroup<Book, Attribute> group, Book fusedRecord, Processable<Correspondence<Attribute, Matchable>> schemaCorrespondences, Attribute schemaElement) {
 
 		// get the fused value
-		FusedValue<String, Movie, Attribute> fused = getFusedValue(group, schemaCorrespondences, schemaElement);
+		FusedValue<String, Book, Attribute> fused = getFusedValue(group, schemaCorrespondences, schemaElement);
 
 		// set the value for the fused record
 		fusedRecord.setTitle(fused.getValue());
 
 		// add provenance info
-		fusedRecord.setAttributeProvenance(Movie.TITLE, fused.getOriginalIds());
+		fusedRecord.setAttributeProvenance(Book.TITLE, fused.getOriginalIds());
 	}
 
 	@Override
-	public boolean hasValue(Movie record, Correspondence<Attribute, Matchable> correspondence) {
-		return record.hasValue(Movie.TITLE);
+	public boolean hasValue(Book record, Correspondence<Attribute, Matchable> correspondence) {
+		return record.hasValue(Book.TITLE);
 	}
 
 	@Override
-	public String getValue(Movie record, Correspondence<Attribute, Matchable> correspondence) {
+	public String getValue(Book record, Correspondence<Attribute, Matchable> correspondence) {
 		return record.getTitle();
 	}
 
