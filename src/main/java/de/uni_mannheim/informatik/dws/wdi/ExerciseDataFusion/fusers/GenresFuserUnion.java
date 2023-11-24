@@ -20,10 +20,6 @@ import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.RecordGroup;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.processing.Processable;
-import org.apache.jena.base.Sys;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
