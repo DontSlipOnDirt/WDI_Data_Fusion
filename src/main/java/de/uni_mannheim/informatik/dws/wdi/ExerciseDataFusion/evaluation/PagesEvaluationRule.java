@@ -30,7 +30,7 @@ public class PagesEvaluationRule extends EvaluationRule<Book, Attribute> {
 
     @Override
     public boolean isEqual(Book record1, Book record2, Attribute schemaElement) {
-        return record1.getPages() == record2.getPages();
+        return record1.getPages() / record2.getPages() >0.9 || record1.getPages() / record2.getPages() > 1.1;
     }
 
     /* (non-Javadoc)
